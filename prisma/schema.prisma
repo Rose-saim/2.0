@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  accountType   String    // "B2B", "B2C", or "B2G"
+  email         String    @unique
+  passwordHash  String
+  fullName      String?   // For B2C
+  companyName   String?   // For B2B
+  orgName       String?   // For B2G
+  industry      String?   // For B2B
+  fieldOfInterest String? // For B2C
+  role          String?   // For B2G
+  department    String?   // For B2G
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  profile       Profile?
+  sessions      Session[]
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  avatar      String?
+  bio         String?
+  preferences Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
